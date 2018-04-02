@@ -1,0 +1,80 @@
+---
+- name: "Ensure Google linux signing key present"
+  apt_key: 
+    url: "https://dl-ssl.google.com/linux/linux_signing_key.pub"
+    state: present
+
+- name: "Ensure Google chrome repo present"
+  apt_repository:
+    repo: "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+    filename: "google-chrome"
+    state: present
+    update_cache: yes
+
+- name: Install GUI
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - lxde-core
+    - xfce4-power-manager
+    - xfce4-xkb-plugin
+    - firefox-esr
+    - thunderbird
+    - google-chrome-stable
+
+- name: Configure /etc/X11/Xwrapper.config
+  lineinfile:
+    path: /etc/X11/Xwrapper.config
+    regexp: '^allowed_users=console'
+    line: 'allowed_users=anybody'
+- name: Created user xserver
+  user:
+    name: "{{ USER_NAME }}"
+    password: "{{USER_PASSWORD}}"
+    shell: /bin/bash
+    uid: 1000
+    state: present
+    create_home: yes
+- file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ USER_NAME }}"
+    group: "{{ USER_NAME }}"
+  with_items:
+    - "/home/{{ USER_NAME }}/.config/xfce4/xfconf/xfce-perchannel-xml/"
+    - "/home/{{ USER_NAME }}/.config/lxpanel/LXDE/panels"
+    - "/home/{{ USER_NAME }}/Рабочий стол/"
+- name: Copy file xfce4-power-manager.xml
+  copy:
+    src: xfce4-power-manager.xml
+    dest: /home/{{ USER_NAME }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
+    owner: "{{ USER_NAME }}"
+    group: "{{ USER_NAME }}"
+- name: Copy file panel
+  copy:
+    src: panel
+    dest: /home/{{ USER_NAME }}/.config/lxpanel/LXDE/panels/panel
+    owner: "{{ USER_NAME }}"
+    group: "{{ USER_NAME }}"
+- name: Copy link to desktop
+  copy:
+    src: "{{ item }}"
+    dest: /home/{{ USER_NAME }}/Рабочий стол/
+    owner: "{{ USER_NAME }}"
+    group: "{{ USER_NAME }}"
+  with_items:
+    - "google-chrome.desktop"
+    - "firefox-esr.desktop"
+    - "thunderbird.desktop"
+- name: Configure /usr/share/applications/thunderbird.desktop
+  lineinfile:
+    path: /usr/share/applications/thunderbird.desktop
+    regexp: '^Icon=thunderbird'
+    line: 'Icon=/usr/share/thunderbird/chrome/icons/default/default256.png'
+- name: Restart xrdp
+  service:
+    name: xrdp
+    enabled: yes
+    state: restarted

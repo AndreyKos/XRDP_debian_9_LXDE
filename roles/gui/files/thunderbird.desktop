@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Link
+Name=Почтовый клиент Thunderbird
+Icon=/usr/share/thunderbird/chrome/icons/default/default256.png
+URL=/usr/share/applications/thunderbird.desktop

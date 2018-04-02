@@ -1,0 +1,7 @@
+---
+- name: Install xrdp with gui on debian 9
+  hosts: VS-25
+  roles:
+    - base
+    - xrdp
+    - gui

@@ -1,0 +1,56 @@
+---
+- name: Clone GIT reposytory "{{ XRDP_REP }}"
+  git:
+    clone: yes
+    dest: "{{ OPT }}/xrdp"
+    repo: "{{ XRDP_REP }}"
+
+- name: Clone GIT reposytory "{{ XORGRDP_REP }}"
+  git:
+    clone: yes
+    dest: "{{ OPT }}/xorgrdp"
+    repo: "{{ XORGRDP_REP }}"
+
+- name: Run bootstrap in "{{ OPT }}/xrdp"
+  command:  ./bootstrap arg1
+  args:
+    chdir: "{{ OPT }}/xrdp"
+
+- name: Run configure in "{{ OPT }}/xrdp"
+  command:  ./configure --enable-fuse --enable-mp3lame --enable-pixman --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu arg1
+  args:
+    chdir: "{{ OPT }}/xrdp"
+
+- name: Run make in "{{ OPT }}/xrdp"
+  make:
+    chdir: "{{ OPT }}/xrdp"
+
+- name: Run make install in "{{ OPT }}/xrdp"
+  make:
+    chdir: "{{ OPT }}/xrdp"
+    target: install
+
+- name: Run bootstrap in "{{ OPT }}/xorgrdp"
+  command:  ./bootstrap arg1
+  args:
+    chdir: "{{ OPT }}/xorgrdp"
+
+- name: Run configure in "{{ OPT }}/xorgrdp"
+  command:  ./configure --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu arg1
+  args:
+    chdir: "{{ OPT }}/xorgrdp"
+
+- name: Run make in "{{ OPT }}/xorgrdp"
+  make:
+    chdir: "{{ OPT }}/xorgrdp"
+
+- name: Run make install in "{{ OPT }}/xorgrdp"
+  make:
+    chdir: "{{ OPT }}/xorgrdp"
+    target: install
+
+- name: Enable and started xrdp
+  service:
+    name: xrdp
+    enabled: yes
+    state: started

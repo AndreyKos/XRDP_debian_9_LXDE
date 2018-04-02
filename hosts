@@ -1,0 +1,9 @@
+all:
+  children:
+    UA:
+      children:
+        Dedicated:
+        VS:
+          hosts:
+            VS-25:
+              ansible_host: 176.103.56.57
