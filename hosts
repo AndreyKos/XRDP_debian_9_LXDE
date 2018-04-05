@@ -6,4 +6,4 @@ all:
         VS:
           hosts:
             VS-25:
-              ansible_host: 0.0.0.0
+              ansible_host: 176.103.56.57

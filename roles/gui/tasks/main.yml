@@ -1,17 +1,27 @@
 ---
-- name: "Ensure Google linux signing key present"
+- name: Ensure key present for Google.
   apt_key: 
     url: "https://dl-ssl.google.com/linux/linux_signing_key.pub"
     state: present
-
-- name: "Ensure Google chrome repo present"
+- name: Ensure Google chrome repo present.
   apt_repository:
     repo: "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
     filename: "google-chrome"
     state: present
     update_cache: yes
-
-- name: Install GUI
+- name: Add architecture i386 for install wine.
+  command: dpkg --add-architecture i386
+- name: "Ensure key present for Wine."
+  apt_key: 
+    url: "https://dl.winehq.org/wine-builds/Release.key"
+    state: present
+- name: Ensure Wine repo present.
+  apt_repository:
+    repo: "deb http://dl.winehq.org/wine-builds/debian/ stretch main"
+    filename: "wine"
+    state: present
+    update_cache: yes
+- name: Install GUI.
   apt:
     name: "{{ item }}"
     state: latest
@@ -22,13 +32,13 @@
     - firefox-esr
     - thunderbird
     - google-chrome-stable
-
-- name: Configure /etc/X11/Xwrapper.config
+    - winehq-stable
+- name: Configure /etc/X11/Xwrapper.config.
   lineinfile:
     path: /etc/X11/Xwrapper.config
     regexp: '^allowed_users=console'
     line: 'allowed_users=anybody'
-- name: Created user xserver
+- name: Created user "{{ USER_NAME }}".
   user:
     name: "{{ USER_NAME }}"
     password: "{{USER_PASSWORD}}"
@@ -36,7 +46,8 @@
     uid: 1000
     state: present
     create_home: yes
-- file:
+- name: Created user directories.
+  file:
     path: "{{ item }}"
     state: directory
     mode: 0755
@@ -46,19 +57,19 @@
     - "/home/{{ USER_NAME }}/.config/xfce4/xfconf/xfce-perchannel-xml/"
     - "/home/{{ USER_NAME }}/.config/lxpanel/LXDE/panels"
     - "/home/{{ USER_NAME }}/Рабочий стол/"
-- name: Copy file xfce4-power-manager.xml
+- name: Copy file xfce4-power-manager.xml.
   copy:
     src: xfce4-power-manager.xml
     dest: /home/{{ USER_NAME }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
     owner: "{{ USER_NAME }}"
     group: "{{ USER_NAME }}"
-- name: Copy file panel
+- name: Copy file panel.
   copy:
     src: panel
     dest: /home/{{ USER_NAME }}/.config/lxpanel/LXDE/panels/panel
     owner: "{{ USER_NAME }}"
     group: "{{ USER_NAME }}"
-- name: Copy link to desktop
+- name: Copy link to desktop.
   copy:
     src: "{{ item }}"
     dest: /home/{{ USER_NAME }}/Рабочий стол/
@@ -68,11 +79,16 @@
     - "google-chrome.desktop"
     - "firefox-esr.desktop"
     - "thunderbird.desktop"
-- name: Configure /usr/share/applications/thunderbird.desktop
+- name: Configure /usr/share/applications/thunderbird.desktop.
   lineinfile:
     path: /usr/share/applications/thunderbird.desktop
     regexp: '^Icon=thunderbird'
     line: 'Icon=/usr/share/thunderbird/chrome/icons/default/default256.png'
+- name: Disable xscreensaver.
+  lineinfile:
+    path: /etc/xdg/lxsession/LXDE/autostart
+    regexp: "^@xscreensaver -no-splash"
+    state: absent
 - name: Restart xrdp
   service:
     name: xrdp

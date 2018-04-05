@@ -1,5 +1,0 @@
-OPT: "/opt"
-XRDP_REP: "https://github.com/neutrinolabs/xrdp.git"
-XORGRDP_REP: "https://github.com/neutrinolabs/xorgxrdp.git"
-USER_PASSWORD: "$6$8kIgs430$V/C20QsmCIE6DQnr54iOZ8cYyhG2wGWzELt6Ag7Lt1GXVcsm2JppZW3Um6bDP/pVbvc6881lngWPOZggkYyaK0"
-USER_NAME: "xserver"
